@@ -1,0 +1,219 @@
+<template>
+  <div class="download-container">
+    <el-card class="box-card">
+      <template #header>
+        <div class="card-header">
+          <span class="header-title">视频下载器</span>
+        </div>
+      </template>
+
+      <el-form label-position="top">
+        <el-form-item label="视频 URL">
+          <el-input
+              v-model="videoUrl"
+              placeholder="请输入视频链接 (例如: https://www.bilibili.com/video/...)"
+              clearable
+          />
+        </el-form-item>
+
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="视频流 (Video)">
+              <el-select v-model="selectedVideo" placeholder="选择视频分辨率" class="full-width">
+                <el-option
+                    v-for="item in videoFormats"
+                    :key="item.id"
+                    :label="`${item.res}P | ${item.ext} | ${item.fps}fps | ${item.filesize} | ${item.vbr}kbps`"
+                    :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="音频流 (Audio)">
+              <el-select v-model="selectedAudio" placeholder="选择音质" class="full-width">
+                <el-option
+                    v-for="item in audioFormats"
+                    :key="item.id"
+                    :label="`${item.ext} | ${item.filesize} | ${item.abr}`"
+                    :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <div class="action-buttons">
+          <el-button type="primary" size="large" @click="handleFetchFormats">
+            解析可用格式
+          </el-button>
+          <el-button type="success" size="large" :disabled="!videoUrl" @click="handleDownload">
+            立即下载
+          </el-button>
+        </div>
+
+        <div class="terminal-wrapper">
+          <div class="terminal-header">控制台输出</div>
+          <el-input
+              v-model="terminalLog"
+              type="textarea"
+              :rows="12"
+              readonly
+              resize="none"
+              class="custom-terminal"
+          />
+        </div>
+      </el-form>
+    </el-card>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import {ElMessage} from "element-plus";
+import request from "@/api/index.js";
+
+const videoUrl = ref('')
+const selectedVideo = ref('')
+const selectedAudio = ref('')
+const terminalLog = ref('等待任务开始...\n')
+
+// 模拟格式数据（后续通过 Python 后端获取）
+interface VideoFormatDetail {
+  id: string;        // 格式 ID (e.g., '137')
+  ext: string;       // 扩展名 (e.g., 'mp4')
+  filesize: string;  // 已格式化的文件大小 (e.g., '45.2MB')
+
+  res: number;       // 分辨率高度 (e.g., 1080)
+  fps: number;       // 帧率 (e.g., 30.0)
+  vbr: number;       // 视频码率 (e.g., 128.1)
+  vcodec: string;    // 视频编码器 (e.g., 'avc1.640028')
+}
+
+interface AudioFormatDetail {
+  id: string;        // 格式 ID (e.g., '140')
+  ext: string;       // 扩展名 (e.g., 'm4a')
+  filesize: string;  // 已格式化的文件大小 (e.g., '1.2MB')
+
+  abr: number;       // 音频平均码率 (e.g., 128.1)
+  acodec: string;    // 音频编码器 (e.g., 'mp4a.40.2')
+}
+
+const videoFormats = ref<VideoFormatDetail[]>([])
+const audioFormats = ref<AudioFormatDetail[]>([])
+
+// 逻辑函数
+const handleFetchFormats = async () => {
+  if (!videoUrl.value) return ElMessage.warning('请先输入 URL')
+
+  terminalLog.value = `[INFO] 正在解析: ${videoUrl.value}\n`
+
+    // 直接使用 request.post
+    const res = await request.post('/get-available-formats', {
+      url: videoUrl.value
+    })
+
+    if (res.status === 'success') {
+      videoFormats.value = res.videoFormats
+      audioFormats.value = res.audioFormats
+
+      terminalLog.value += `[SUCCESS] 解析成功，请选择格式\n`
+    } else {
+      terminalLog.value += `[WARN] ${res.message}\n`
+    }
+}
+
+const handleDownload = async () => {
+  if (!selectedVideo.value || !selectedAudio.value) {
+    return ElMessage.warning('请先选择视频和音频格式')
+  }
+
+  const combinedFmt = `${selectedVideo.value}+${selectedAudio.value}`
+  terminalLog.value += `[START] 准备下载，格式 ID: ${combinedFmt}...\n`
+
+  try {
+    // 1. 发起下载任务
+    await request.post('/download-video', {
+      url: videoUrl.value,
+      fmt: combinedFmt
+    })
+    terminalLog.value += `[INFO] 任务已提交至后台...\n`
+
+    // 2. 立即开启轮询
+    const timer = setInterval(async () => {
+      try {
+        const data = await request.get('/get-download-progress', {
+          params: { url: videoUrl.value }
+        })
+
+        // 更新日志（可以只更新最后一行，或者直接追加）
+        if (data.status === 'downloading') {
+          terminalLog.value += `[进度] ${data.progress} | 速度: ${data.speed} | 剩余时间: ${data.eta}\n`
+        } else if (data.status === 'finished') {
+          clearInterval(timer)
+          terminalLog.value += `[SUCCESS] 下载完成！已保存到指定目录。\n`
+        } else if (data.status === 'error') {
+          clearInterval(timer)
+          terminalLog.value += `[ERROR] 下载中断: ${data.message}\n`
+        }
+      } catch (err) {
+        clearInterval(timer)
+        terminalLog.value += `[ERROR] 轮询进度失败\n`
+      }
+    }, 1000)
+
+  } catch (error) {
+    terminalLog.value += `[ERROR] 任务提交失败\n`
+  }
+}
+</script>
+
+<style scoped>
+.download-container {
+  padding: 30px;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+  font-family: "JetBrains Mono", "PingFang SC", sans-serif;
+}
+
+.box-card {
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+
+.header-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.terminal-wrapper {
+  margin-top: 25px;
+}
+
+.terminal-header {
+  font-size: 13px;
+  color: #909399;
+  margin-bottom: 8px;
+  padding-left: 5px;
+}
+
+.custom-terminal :deep(.el-textarea__inner) {
+  background-color: #1e1e1e;
+  color: #a9b7c6;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  border: none;
+}
+</style>
