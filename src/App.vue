@@ -1,11 +1,28 @@
-<script setup lang="ts"></script>
-
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <el-menu
+      :default-active="activeIndex"
+      class="el-menu-demo"
+      mode="horizontal"
+      router
+  >
+    <el-menu-item index="/download">Download</el-menu-item>
+    <el-menu-item index="/get-cookie">Get Cookie</el-menu-item>
+  </el-menu>
+
+  <router-view></router-view>
 </template>
 
-<style scoped></style>
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const activeIndex = computed(() => {
+  const { path } = route
+  return path
+})
+</script>
+
+<style>
+</style>
