@@ -23,7 +23,7 @@
                 <el-option
                     v-for="item in videoFormats"
                     :key="item.id"
-                    :label="`${item.res}P | ${item.ext} | ${item.fps}fps | ${item.filesize} | ${item.vbr}kbps`"
+                    :label="`id: ${item.id} | ${item.res}P | ${item.ext} | ${item.fps}fps | ${item.filesize} | ${item.vbr}kbps`"
                     :value="item.id"
                 />
               </el-select>
@@ -35,7 +35,7 @@
                 <el-option
                     v-for="item in audioFormats"
                     :key="item.id"
-                    :label="`${item.ext} | ${item.filesize} | ${item.abr}`"
+                    :label="`id: ${item.id} | ${item.ext} | ${item.filesize} | ${item.abr}`"
                     :value="item.id"
                 />
               </el-select>
@@ -44,7 +44,7 @@
         </el-row>
 
         <div class="action-buttons">
-          <el-button type="primary" size="large" @click="handleFetchFormats">
+          <el-button type="primary" size="large" :disabled="!videoUrl" @click="handleFetchFormats">
             解析可用格式
           </el-button>
           <el-button type="success" size="large" :disabled="!videoUrl" @click="handleDownload">
@@ -99,6 +99,18 @@ interface AudioFormatDetail {
   acodec: string;    // 音频编码器 (e.g., 'mp4a.40.2')
 }
 
+interface FetchVideoFormatResponse {
+  status: 'success' | 'error';
+  message: string;
+  videoFormats: VideoFormatDetail[];
+  audioFormats: AudioFormatDetail[];
+}
+
+interface DownloadVideoResponse {
+  status: 'success' | 'error';
+  message: string;
+}
+
 const videoFormats = ref<VideoFormatDetail[]>([])
 const audioFormats = ref<AudioFormatDetail[]>([])
 
@@ -109,7 +121,7 @@ const handleFetchFormats = async () => {
   terminalLog.value = `[INFO] 正在解析: ${videoUrl.value}\n`
 
     // 直接使用 request.post
-    const res = await request.post('/get-available-formats', {
+    const res: FetchVideoFormatResponse = await request.post('/get-available-formats', {
       url: videoUrl.value
     })
 
@@ -128,43 +140,42 @@ const handleDownload = async () => {
     return ElMessage.warning('请先选择视频和音频格式')
   }
 
-  const combinedFmt = `${selectedVideo.value}+${selectedAudio.value}`
-  terminalLog.value += `[START] 准备下载，格式 ID: ${combinedFmt}...\n`
+  const combinedFmtId = [selectedVideo.value, selectedAudio.value]
+      .filter(id => id)
+      .join('+')
+  terminalLog.value = `[START] 准备下载，格式 ID: ${combinedFmtId}...\n`
 
-  try {
-    // 1. 发起下载任务
-    await request.post('/download-video', {
-      url: videoUrl.value,
-      fmt: combinedFmt
-    })
-    terminalLog.value += `[INFO] 任务已提交至后台...\n`
+  // 1. 发起下载任务
+  const res: DownloadVideoResponse = await request.post('/download-video', {
+    url: videoUrl.value,
+    formatId: combinedFmtId
+  })
+  terminalLog.value += res.message
 
-    // 2. 立即开启轮询
-    const timer = setInterval(async () => {
-      try {
-        const data = await request.get('/get-download-progress', {
-          params: { url: videoUrl.value }
-        })
 
-        // 更新日志（可以只更新最后一行，或者直接追加）
-        if (data.status === 'downloading') {
-          terminalLog.value += `[进度] ${data.progress} | 速度: ${data.speed} | 剩余时间: ${data.eta}\n`
-        } else if (data.status === 'finished') {
-          clearInterval(timer)
-          terminalLog.value += `[SUCCESS] 下载完成！已保存到指定目录。\n`
-        } else if (data.status === 'error') {
-          clearInterval(timer)
-          terminalLog.value += `[ERROR] 下载中断: ${data.message}\n`
-        }
-      } catch (err) {
-        clearInterval(timer)
-        terminalLog.value += `[ERROR] 轮询进度失败\n`
-      }
-    }, 1000)
+  // 2. 立即开启轮询
+    // const timer = setInterval(async () => {
+    //   try {
+    //     const data = await request.get('/get-download-progress', {
+    //       params: { url: videoUrl.value }
+    //     })
+    //
+    //     // 更新日志（可以只更新最后一行，或者直接追加）
+    //     if (data.status === 'downloading') {
+    //       terminalLog.value += `[进度] ${data.progress} | 速度: ${data.speed} | 剩余时间: ${data.eta}\n`
+    //     } else if (data.status === 'finished') {
+    //       clearInterval(timer)
+    //       terminalLog.value += `[SUCCESS] 下载完成！已保存到指定目录。\n`
+    //     } else if (data.status === 'error') {
+    //       clearInterval(timer)
+    //       terminalLog.value += `[ERROR] 下载中断: ${data.message}\n`
+    //     }
+    //   } catch (err) {
+    //     clearInterval(timer)
+    //     terminalLog.value += `[ERROR] 轮询进度失败\n`
+    //   }
+    // }, 1000)
 
-  } catch (error) {
-    terminalLog.value += `[ERROR] 任务提交失败\n`
-  }
 }
 </script>
 
