@@ -8,7 +8,21 @@
       </template>
 
       <el-form label-position="top">
-        <el-form-item label="视频 URL">
+        <el-form-item>
+          <template #label>
+            <div style="display: flex; align-items: center;">
+              <span>视频 URL</span>
+              <el-tooltip content="点击查看当前支持的网站" placement="top">
+                <el-icon
+                    @click="dialogVisible = true"
+                    class="info-icon"
+                >
+                  <QuestionFilled />
+                </el-icon>
+              </el-tooltip>
+            </div>
+          </template>
+
           <el-input
               v-model="videoUrl"
               placeholder="请输入视频链接 (例如: https://www.bilibili.com/video/...)"
@@ -66,13 +80,39 @@
       </el-form>
     </el-card>
   </div>
+
+  <el-dialog
+      v-model="dialogVisible"
+      title="支持的网站列表"
+      width="30%"
+  >
+    <div class="sites-container">
+      <el-tag
+          v-for="site in supportedWebsites"
+          :key="site"
+          class="site-tag"
+          effect="plain"
+          round
+      >
+        {{ site }}
+      </el-tag>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">了解了</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import {ElMessage} from "element-plus";
+import { onMounted, ref } from 'vue'
+import { ElMessage } from "element-plus";
+import { QuestionFilled } from '@element-plus/icons-vue'
 import request from "@/api/index.js";
 
+const supportedWebsites = ref<string[]>([])
+const dialogVisible = ref(false)
 const videoUrl = ref('')
 const selectedVideo = ref('')
 const selectedAudio = ref('')
@@ -111,8 +151,22 @@ interface DownloadVideoResponse {
   message: string;
 }
 
+interface GetSupportedWebsitesResponse {
+  status: 'success' | 'error';
+  websites: string[];
+  message: string;
+}
+
 const videoFormats = ref<VideoFormatDetail[]>([])
 const audioFormats = ref<AudioFormatDetail[]>([])
+
+onMounted(async () => {
+  const res: GetSupportedWebsitesResponse = await request.get("/get-supported-websites");
+
+  if (res.status === 'success') {
+    supportedWebsites.value = res.websites;
+  }
+})
 
 // 逻辑函数
 const handleFetchFormats = async () => {
@@ -226,5 +280,22 @@ const handleDownload = async () => {
   font-size: 13px;
   line-height: 1.5;
   border: none;
+}
+
+.info-icon {
+  margin-left: 6px;
+  cursor: pointer;
+  color: #67c23a; /* 使用成功色（绿色）表示支持情况 */
+  transition: transform 0.2s;
+}
+
+.info-icon:hover {
+  transform: scale(1.2);
+}
+
+.site-tag {
+  margin: 5px 5px 0 0;
+  font-weight: bold;
+  text-transform: capitalize;
 }
 </style>
