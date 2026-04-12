@@ -1,9 +1,18 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 
+declare global {
+    interface Window {
+        BACKEND_PORT?: number;
+    }
+}
+
+// port 56000 for test
+const BACKEND_PORT = window.BACKEND_PORT || 56000
+
 // 创建 axios 实例
 const request = axios.create({
-    baseURL: 'http://127.0.0.1:56000',
+    baseURL: `http://127.0.0.1:${BACKEND_PORT}`,
     timeout: 0,
 });
 
