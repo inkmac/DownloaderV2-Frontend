@@ -9,7 +9,11 @@
     <el-menu-item index="/get-cookie">Get Cookie</el-menu-item>
   </el-menu>
 
-  <router-view></router-view>
+  <router-view v-slot="{ Component, route }">
+    <KeepAlive>
+      <component :is="Component" :key="route.path" />
+    </KeepAlive>
+  </router-view>
 </template>
 
 <script lang="ts" setup>
