@@ -49,7 +49,7 @@
                 <el-option
                     v-for="item in audioFormats"
                     :key="item.id"
-                    :label="`id: ${item.id} | ${item.ext} | ${item.filesize} | ${item.abr}`"
+                    :label="`id: ${item.id} | ${item.ext} | ${item.filesize} | ${item.abr}kbps`"
                     :value="item.id"
                 />
               </el-select>
@@ -205,31 +205,6 @@ const handleDownload = async () => {
     formatId: combinedFmtId
   })
   terminalLog.value += res.message
-
-
-  // 2. 立即开启轮询
-    // const timer = setInterval(async () => {
-    //   try {
-    //     const data = await request.get('/get-download-progress', {
-    //       params: { url: videoUrl.value }
-    //     })
-    //
-    //     // 更新日志（可以只更新最后一行，或者直接追加）
-    //     if (data.status === 'downloading') {
-    //       terminalLog.value += `[进度] ${data.progress} | 速度: ${data.speed} | 剩余时间: ${data.eta}\n`
-    //     } else if (data.status === 'finished') {
-    //       clearInterval(timer)
-    //       terminalLog.value += `[SUCCESS] 下载完成！已保存到指定目录。\n`
-    //     } else if (data.status === 'error') {
-    //       clearInterval(timer)
-    //       terminalLog.value += `[ERROR] 下载中断: ${data.message}\n`
-    //     }
-    //   } catch (err) {
-    //     clearInterval(timer)
-    //     terminalLog.value += `[ERROR] 轮询进度失败\n`
-    //   }
-    // }, 1000)
-
 }
 </script>
 
