@@ -3,7 +3,7 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span>🍪 Cookie 自动提取</span>
+          <span class="header-title">Cookie 提取</span>
         </div>
       </template>
 
@@ -34,7 +34,7 @@
           <el-button
               type="primary"
               size="large"
-              :loading="loading"
+              :disabled="loading"
               @click="handleFetchCookie"
           >
             开始提取 Cookie
@@ -52,7 +52,6 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
 import request from '@/api'
 
 // 定义接口响应类型
@@ -79,12 +78,12 @@ const handleFetchCookie = async () => {
   })
 
   if (res.status === 'success') {
-    terminalLog.value += `[SUCCESS] ${res.message}\n`
-    ElMessage.success('Cookie 提取成功')
+    terminalLog.value += res.message
   } else {
-    terminalLog.value += `[ERROR] ${res.message}\n`
-    ElMessage.warning('提取失败')
+    terminalLog.value += res.message
   }
+
+  loading.value = false
 }
 </script>
 
@@ -100,6 +99,11 @@ const handleFetchCookie = async () => {
   max-width: 900px;
   margin: 0 auto;
   border-radius: 8px;
+}
+
+.header-title {
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 .action-bar {

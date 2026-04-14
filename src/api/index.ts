@@ -20,7 +20,8 @@ const request = axios.create({
 request.interceptors.response.use(
     (response) => response.data,
     (error) => {
-        const msg = error.response?.data?.detail || "网络请求失败";
+        const errorMsg = error.response?.data?.detail;
+        const msg = errorMsg ? `Axios Error: ${errorMsg}` : 'Axios Error';
         ElMessage.error(msg); // 自动弹出错误提示
         return Promise.reject(error);
     }

@@ -58,10 +58,20 @@
         </el-row>
 
         <div class="action-buttons">
-          <el-button type="primary" size="large" :disabled="!videoUrl" @click="handleFetchFormats">
+          <el-button
+              type="primary"
+              size="large"
+              :disabled="!videoUrl || loading"
+              @click="handleFetchFormats"
+          >
             解析可用格式
           </el-button>
-          <el-button type="success" size="large" :disabled="!videoUrl" @click="handleDownload">
+          <el-button
+              type="success"
+              size="large"
+              :disabled="!videoUrl || loading"
+              @click="handleDownload"
+          >
             立即下载
           </el-button>
         </div>
@@ -117,6 +127,7 @@ const videoUrl = ref('')
 const selectedVideo = ref('')
 const selectedAudio = ref('')
 const terminalLog = ref('等待任务开始...\n')
+const loading = ref(false)
 
 // 模拟格式数据（后续通过 Python 后端获取）
 interface VideoFormatDetail {
@@ -172,21 +183,24 @@ onMounted(async () => {
 const handleFetchFormats = async () => {
   if (!videoUrl.value) return ElMessage.warning('请先输入 URL')
 
-  terminalLog.value = `[INFO] 正在解析: ${videoUrl.value}\n`
+  loading.value = true
+  terminalLog.value = `[START] 开始解析: ${videoUrl.value}\n`
 
-    // 直接使用 request.post
-    const res: FetchVideoFormatResponse = await request.post('/get-available-formats', {
-      url: videoUrl.value
-    })
+  // 直接使用 request.post
+  const res: FetchVideoFormatResponse = await request.post('/get-available-formats', {
+    url: videoUrl.value
+  })
 
-    if (res.status === 'success') {
-      videoFormats.value = res.videoFormats
-      audioFormats.value = res.audioFormats
+  if (res.status === 'success') {
+    videoFormats.value = res.videoFormats
+    audioFormats.value = res.audioFormats
 
-      terminalLog.value += `[SUCCESS] 解析成功，请选择格式\n`
-    } else {
-      terminalLog.value += `[WARN] ${res.message}\n`
-    }
+    terminalLog.value += res.message
+  } else {
+    terminalLog.value += res.message
+  }
+
+  loading.value = false
 }
 
 const handleDownload = async () => {
@@ -197,7 +211,9 @@ const handleDownload = async () => {
   const combinedFmtId = [selectedVideo.value, selectedAudio.value]
       .filter(id => id)
       .join('+')
-  terminalLog.value = `[START] 准备下载，格式 ID: ${combinedFmtId}...\n`
+
+  loading.value = true
+  terminalLog.value = `[START] 开始下载，格式 ID: ${combinedFmtId}...\n`
 
   // 1. 发起下载任务
   const res: DownloadVideoResponse = await request.post('/download-video', {
@@ -205,6 +221,7 @@ const handleDownload = async () => {
     formatId: combinedFmtId
   })
   terminalLog.value += res.message
+  loading.value = false
 }
 </script>
 
