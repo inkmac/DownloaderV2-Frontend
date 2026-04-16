@@ -78,14 +78,11 @@
 
         <div class="terminal-wrapper">
           <div class="terminal-header">控制台输出</div>
-          <el-input
-              v-model="terminalLog"
-              type="textarea"
-              :rows="12"
-              readonly
-              resize="none"
-              class="custom-terminal"
-          />
+          <pre
+              ref="terminalRef"
+              v-text="terminalLog"
+              class="terminal-body"
+          ></pre>
         </div>
       </el-form>
     </el-card>
@@ -116,16 +113,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import {nextTick, onMounted, ref, watch} from 'vue'
 import { ElMessage } from "element-plus";
 import { QuestionFilled } from '@element-plus/icons-vue'
 import request from "@/api/index.js";
+import { sleep } from "@/utils/time.ts";
 
 const supportedWebsites = ref<string[]>([])
 const dialogVisible = ref(false)
 const videoUrl = ref('')
 const selectedVideo = ref('')
 const selectedAudio = ref('')
+const terminalRef = ref<HTMLPreElement | null>(null)
 const terminalLog = ref('等待任务开始...\n')
 const loading = ref(false)
 
@@ -160,6 +159,11 @@ interface FetchVideoFormatResponse {
 interface DownloadVideoResponse {
   status: 'success' | 'error';
   message: string;
+}
+
+interface GetDownloadOutputsResponse {
+  status: 'success' | 'error';
+  outputs: string[]
 }
 
 interface GetSupportedWebsitesResponse {
@@ -213,16 +217,45 @@ const handleDownload = async () => {
       .join('+')
 
   loading.value = true
-  terminalLog.value = `[START] 开始下载，格式 ID: ${combinedFmtId}...\n`
+  terminalLog.value = `[START] 开始下载视频: ${videoUrl.value}\n`
+  terminalLog.value += `[START] 格式 ID: ${combinedFmtId}...\n`
+
+  const timer = setInterval(async () => {
+    const res: GetDownloadOutputsResponse = await request.get('/get-download-outputs');
+    if (res.status === 'success') {
+      const outputs = res.outputs;
+
+      outputs.forEach((output) => {
+        if (output.startsWith('[download]') || output.startsWith('[Merger]')) {
+          terminalLog.value += output;
+        }
+      })
+    }
+  }, 200)
 
   // 1. 发起下载任务
-  const res: DownloadVideoResponse = await request.post('/download-video', {
-    url: videoUrl.value,
-    formatId: combinedFmtId
-  })
-  terminalLog.value += res.message
-  loading.value = false
+  try {
+    const res: DownloadVideoResponse = await request.post('/download-video', {
+      url: videoUrl.value,
+      formatId: combinedFmtId
+    })
+
+    await sleep(500)
+
+    terminalLog.value += res.message
+  } finally {
+    loading.value = false
+    clearInterval(timer)
+  }
 }
+
+watch(terminalLog, async () => {
+  await nextTick()
+  terminalRef.value?.scrollTo({
+    top: terminalRef.value.scrollHeight,
+    behavior: 'instant'
+  })
+})
 </script>
 
 <style scoped>
@@ -254,26 +287,38 @@ const handleDownload = async () => {
   margin: 20px 0;
 }
 
+/* 终端样式 */
 .terminal-wrapper {
-  margin-top: 25px;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #444;
 }
 
 .terminal-header {
-  font-size: 13px;
-  color: #909399;
-  margin-bottom: 8px;
-  padding-left: 5px;
+  background: #2d2d30;
+  color: #cccccc;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.custom-terminal :deep(.el-textarea__inner) {
-  background-color: #1e1e1e;
-  color: #a9b7c6;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 13px;
-  line-height: 1.5;
-  border: none;
+.terminal-body {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 12px 16px;
+  min-height: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Consolas', 'Monaco', monospace;
+  line-height: 1.6;
+  font-size: 14px;
 }
 
+/* 网站查询 dialog */
 .info-icon {
   margin-left: 6px;
   cursor: pointer;
