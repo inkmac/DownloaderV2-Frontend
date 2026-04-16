@@ -43,8 +43,11 @@
       </el-form>
 
       <div class="terminal-wrapper">
-        <div class="terminal-header">Terminal Output</div>
-        <pre class="terminal-body">{{ terminalLog }}</pre>
+        <div class="terminal-header">控制台输出</div>
+        <pre
+            v-text="terminalLog"
+            class="terminal-body"
+        ></pre>
       </div>
     </el-card>
   </div>
@@ -109,35 +112,37 @@ const handleFetchCookie = async () => {
 .action-bar {
   margin-top: 10px;
   display: flex;
+  margin-bottom: 20px;
 }
 
 /* 保持与 DownloadPage 一致的终端样式 */
 .terminal-wrapper {
-  margin-top: 20px;
-  background-color: #1e1e1e;
-  border-radius: 4px;
-  border: 1px solid #333;
+  width: 100%;
+  border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #444;
 }
 
 .terminal-header {
-  background-color: #333;
-  color: #aaa;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-family: monospace;
+  background: #2d2d30;
+  color: #cccccc;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .terminal-body {
-  padding: 15px;
-  color: #00ff00;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 13px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  margin: 0;
-  min-height: 200px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 12px 16px;
+  min-height: 280px;
   max-height: 400px;
   overflow-y: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Consolas', 'Monaco', monospace;
+  line-height: 1.6;
+  font-size: 14px;
 }
 </style>
