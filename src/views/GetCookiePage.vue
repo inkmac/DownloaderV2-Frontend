@@ -42,13 +42,7 @@
         </div>
       </el-form>
 
-      <div class="terminal-wrapper">
-        <div class="terminal-header">控制台输出</div>
-        <pre
-            v-text="terminalLog"
-            class="terminal-body"
-        ></pre>
-      </div>
+      <TerminalConsole :logs="terminalLog"/>
     </el-card>
   </div>
 </template>
@@ -56,6 +50,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import request from '@/api'
+import TerminalConsole from "@/components/TerminalConsole.vue";
 
 // 定义接口响应类型
 interface FetchCookieRes {
@@ -64,7 +59,7 @@ interface FetchCookieRes {
 }
 
 const loading = ref(false)
-const terminalLog = ref('[IDLE] 等待操作...\n')
+const terminalLog = ref(['[IDLE] 等待操作...\n'])
 
 const form = reactive({
   browser: 'chrome',
@@ -73,7 +68,7 @@ const form = reactive({
 
 const handleFetchCookie = async () => {
   loading.value = true
-  terminalLog.value = `[INFO] 正在从 ${form.browser} 提取 ${form.website} 的 Cookie...\n`
+  terminalLog.value = [`[INFO] 正在从 ${form.browser} 提取 ${form.website} 的 Cookie...\n`]
 
   const res: FetchCookieRes = await request.post('/fetch-cookie', {
     website: form.website,
@@ -81,9 +76,9 @@ const handleFetchCookie = async () => {
   })
 
   if (res.status === 'success') {
-    terminalLog.value += res.message
+    terminalLog.value.push(res.message)
   } else {
-    terminalLog.value += res.message
+    terminalLog.value.push(res.message)
   }
 
   loading.value = false
@@ -113,36 +108,5 @@ const handleFetchCookie = async () => {
   margin-top: 10px;
   display: flex;
   margin-bottom: 20px;
-}
-
-/* 保持与 DownloadPage 一致的终端样式 */
-.terminal-wrapper {
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #444;
-}
-
-.terminal-header {
-  background: #2d2d30;
-  color: #cccccc;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.terminal-body {
-  background: #1e1e1e;
-  color: #d4d4d4;
-  padding: 12px 16px;
-  min-height: 280px;
-  max-height: 400px;
-  overflow-y: auto;
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  font-family: 'Consolas', 'Monaco', monospace;
-  line-height: 1.6;
-  font-size: 14px;
 }
 </style>

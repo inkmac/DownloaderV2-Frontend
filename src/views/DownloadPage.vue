@@ -76,14 +76,7 @@
           </el-button>
         </div>
 
-        <div class="terminal-wrapper">
-          <div class="terminal-header">控制台输出</div>
-          <pre
-              ref="terminalRef"
-              v-text="terminalLog.join('')"
-              class="terminal-body"
-          ></pre>
-        </div>
+        <TerminalConsole :logs="terminalLog"/>
       </el-form>
     </el-card>
   </div>
@@ -113,13 +106,14 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { ElMessage } from "element-plus";
 import { QuestionFilled } from '@element-plus/icons-vue'
 import request from "@/api/index.js";
 import { sleep } from "@/utils/time.ts";
+import TerminalConsole from "@/components/TerminalConsole.vue";
 
-// 数据格式（通过后端获取）
+// 数据格式（数据通过后端获取）
 interface VideoFormatDetail {
   id: string;        // 格式 ID (e.g., '137')
   ext: string;       // 扩展名 (e.g., 'mp4')
@@ -169,7 +163,6 @@ const dialogVisible = ref(false)
 const videoUrl = ref('')
 const selectedVideo = ref('')
 const selectedAudio = ref('')
-const terminalRef = ref<HTMLPreElement | null>(null)
 const terminalLog = ref(['等待任务开始...\n'])
 const loading = ref(false)
 const videoFormats = ref<VideoFormatDetail[]>([])
@@ -266,14 +259,6 @@ const handleDownload = async () => {
     clearInterval(timer)
   }
 }
-
-watch(terminalLog, async () => {
-  await nextTick()
-  terminalRef.value?.scrollTo({
-    top: terminalRef.value.scrollHeight,
-    behavior: 'instant'
-  })
-})
 </script>
 
 <style scoped>
@@ -303,37 +288,6 @@ watch(terminalLog, async () => {
   display: flex;
   gap: 20px;
   margin: 20px 0;
-}
-
-/* 终端样式 */
-.terminal-wrapper {
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #444;
-}
-
-.terminal-header {
-  background: #2d2d30;
-  color: #cccccc;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.terminal-body {
-  background: #1e1e1e;
-  color: #d4d4d4;
-  padding: 12px 16px;
-  min-height: 280px;
-  max-height: 400px;
-  overflow-y: auto;
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  font-family: 'Consolas', 'Monaco', monospace;
-  line-height: 1.6;
-  font-size: 14px;
 }
 
 /* 网站查询 dialog */
