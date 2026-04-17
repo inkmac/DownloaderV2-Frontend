@@ -80,7 +80,7 @@
           <div class="terminal-header">控制台输出</div>
           <pre
               ref="terminalRef"
-              v-text="terminalLog"
+              v-text="terminalLog.join('')"
               class="terminal-body"
           ></pre>
         </div>
@@ -113,22 +113,13 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, ref, watch} from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import { ElMessage } from "element-plus";
 import { QuestionFilled } from '@element-plus/icons-vue'
 import request from "@/api/index.js";
 import { sleep } from "@/utils/time.ts";
 
-const supportedWebsites = ref<string[]>([])
-const dialogVisible = ref(false)
-const videoUrl = ref('')
-const selectedVideo = ref('')
-const selectedAudio = ref('')
-const terminalRef = ref<HTMLPreElement | null>(null)
-const terminalLog = ref('等待任务开始...\n')
-const loading = ref(false)
-
-// 模拟格式数据（后续通过 Python 后端获取）
+// 数据格式（通过后端获取）
 interface VideoFormatDetail {
   id: string;        // 格式 ID (e.g., '137')
   ext: string;       // 扩展名 (e.g., 'mp4')
@@ -172,9 +163,29 @@ interface GetSupportedWebsitesResponse {
   message: string;
 }
 
+// 数据
+const supportedWebsites = ref<string[]>([])
+const dialogVisible = ref(false)
+const videoUrl = ref('')
+const selectedVideo = ref('')
+const selectedAudio = ref('')
+const terminalRef = ref<HTMLPreElement | null>(null)
+const terminalLog = ref(['等待任务开始...\n'])
+const loading = ref(false)
 const videoFormats = ref<VideoFormatDetail[]>([])
 const audioFormats = ref<AudioFormatDetail[]>([])
 
+// 工具函数
+const isProgressOutput = (output: string) => {
+  return output.startsWith('[download]') && output.includes('% of')
+}
+
+const isStartsWithAny = (str: string, prefixes: string[]): boolean => {
+  if (!str) return false;
+  return prefixes.some(prefix => str.startsWith(prefix));
+}
+
+// 逻辑函数
 onMounted(async () => {
   const res: GetSupportedWebsitesResponse = await request.get("/get-supported-websites");
 
@@ -183,12 +194,11 @@ onMounted(async () => {
   }
 })
 
-// 逻辑函数
 const handleFetchFormats = async () => {
   if (!videoUrl.value) return ElMessage.warning('请先输入 URL')
 
   loading.value = true
-  terminalLog.value = `[START] 开始解析: ${videoUrl.value}\n`
+  terminalLog.value = [`[START] 开始解析: ${videoUrl.value}\n`]
 
   // 直接使用 request.post
   const res: FetchVideoFormatResponse = await request.post('/get-available-formats', {
@@ -199,9 +209,9 @@ const handleFetchFormats = async () => {
     videoFormats.value = res.videoFormats
     audioFormats.value = res.audioFormats
 
-    terminalLog.value += res.message
+    terminalLog.value.push(res.message)
   } else {
-    terminalLog.value += res.message
+    terminalLog.value.push(res.message)
   }
 
   loading.value = false
@@ -217,20 +227,28 @@ const handleDownload = async () => {
       .join('+')
 
   loading.value = true
-  terminalLog.value = `[START] 开始下载视频: ${videoUrl.value}\n`
-  terminalLog.value += `[START] 格式 ID: ${combinedFmtId}...\n`
+  terminalLog.value = [`[START] 开始下载视频: ${videoUrl.value}\n`]
+  terminalLog.value.push(`[START] 格式 ID: ${combinedFmtId}...\n`)
 
   const timer = setInterval(async () => {
     const res: GetDownloadOutputsResponse = await request.get('/get-download-outputs');
-    if (res.status === 'success') {
-      const outputs = res.outputs;
+    if (res.status === 'error') return
 
-      outputs.forEach((output) => {
-        if (output.startsWith('[download]') || output.startsWith('[Merger]')) {
-          terminalLog.value += output;
+    const outputs = res.outputs;
+
+    outputs.forEach((output) => {
+      if (!isStartsWithAny(output, ['[download]', '[Merger]'])) {
+        return;
+      }
+
+      if (isProgressOutput(output)) {
+        if (isProgressOutput(terminalLog.value[terminalLog.value.length - 1]!)) {
+          terminalLog.value.pop()
         }
-      })
-    }
+      }
+
+      terminalLog.value.push(output);
+    })
   }, 200)
 
   // 1. 发起下载任务
@@ -242,7 +260,7 @@ const handleDownload = async () => {
 
     await sleep(500)
 
-    terminalLog.value += res.message
+    terminalLog.value.push(res.message)
   } finally {
     loading.value = false
     clearInterval(timer)
