@@ -25,7 +25,7 @@
 
           <el-input
               v-model="videoUrl"
-              placeholder="请输入视频链接 (例如: https://www.bilibili.com/video/...)"
+              placeholder="请输入视频链接 (例如: https://www.example.com/video/...)"
               clearable
           />
         </el-form-item>
