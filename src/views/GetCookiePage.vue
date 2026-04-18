@@ -43,6 +43,12 @@
       </el-form>
 
       <TerminalConsole :logs="terminalLog"/>
+
+      <ContactAuthor
+          title="Find bugs? Contact Author: "
+          url="mailto:wenyuan_zhao@outlook.com"
+          label="Wenyuan Zhao"
+      />
     </el-card>
   </div>
 </template>
@@ -51,6 +57,7 @@
 import { ref, reactive } from 'vue'
 import request from '@/api'
 import TerminalConsole from "@/components/TerminalConsole.vue";
+import ContactAuthor from "@/components/ContactAuthor.vue";
 
 // 定义接口响应类型
 interface FetchCookieRes {

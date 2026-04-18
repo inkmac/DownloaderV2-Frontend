@@ -75,9 +75,15 @@
             立即下载
           </el-button>
         </div>
-
-        <TerminalConsole :logs="terminalLog"/>
       </el-form>
+
+      <TerminalConsole :logs="terminalLog"/>
+
+      <ContactAuthor
+          title="Find bugs? Contact Author: "
+          url="mailto:wenyuan_zhao@outlook.com"
+          label="Wenyuan Zhao"
+      />
     </el-card>
   </div>
 
@@ -112,6 +118,7 @@ import { QuestionFilled } from '@element-plus/icons-vue'
 import request from "@/api/index.js";
 import { sleep } from "@/utils/time.ts";
 import TerminalConsole from "@/components/TerminalConsole.vue";
+import ContactAuthor from "@/components/ContactAuthor.vue";
 
 // 数据格式（数据通过后端获取）
 interface VideoFormatDetail {
