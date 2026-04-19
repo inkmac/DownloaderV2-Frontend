@@ -40,6 +40,7 @@ watch(() => props.logs.length, async () => {
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #444;
+  box-sizing: border-box;
 }
 
 .terminal-header {
