@@ -36,7 +36,7 @@
         <div class="footer-info">
           <span class="author-tag">Maintained by inkmac</span>
           <span class="divider">|</span>
-          <el-link @click="handleOpenUri(mail)">提交 Bug反馈</el-link>
+          <el-link @click="handleOpenUri(issues)">提交Bug反馈</el-link>
         </div>
       </div>
     </el-card>
@@ -50,7 +50,7 @@ import { ElMessage } from "element-plus";
 
 const frontendUrl = 'https://github.com/inkmac/DownloaderV2-Frontend'
 const backendUrl = 'https://github.com/inkmac/DownloaderV2-Backend'
-const mail = 'mailto:wenyuan_zhao@outlook.com'
+const issues = 'https://github.com/inkmac/DownloaderV2-Frontend/issues'
 
 const handleOpenUri = async (uri: string) => {
   const res = await openUri(uri);

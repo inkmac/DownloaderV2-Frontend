@@ -45,9 +45,9 @@
       <TerminalConsole :logs="terminalLog"/>
 
       <ContactAuthor
-          title="Find bugs? Contact Author: "
-          uri="mailto:wenyuan_zhao@outlook.com"
-          label="Wenyuan Zhao"
+          title=""
+          uri="https://github.com/inkmac/DownloaderV2-Frontend/issues"
+          label="Report issues on GitHub"
       />
     </el-card>
   </div>
