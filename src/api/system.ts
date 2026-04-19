@@ -1,13 +1,13 @@
 import request from "@/api/index.ts";
 
-interface OpenSystemResponse {
+interface OpenUriResponse {
     status: 'success' | 'error';
     message: string;
 }
 
-export function openSystem(target: string): Promise<OpenSystemResponse> {
-    return request.post('/open-system', {
-        target: target,
+export function openUri(uri: string): Promise<OpenUriResponse> {
+    return request.post('/open-uri', {
+        uri: uri,
     })
 }
 

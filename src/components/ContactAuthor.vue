@@ -3,14 +3,14 @@
     <span class="label-title" v-text="title"></span>
 
     <el-tooltip
-        :content="url"
+        :content="uri"
         placement="top"
         :show-after="200"
     >
       <el-link
           class="path-link"
           underline="never"
-          @click="openMail(url)"
+          @click="handleOpenUri(uri)"
       >
         <span class="path-text">{{ label }}</span>
       </el-link>
@@ -20,18 +20,18 @@
 
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
-import { openSystem } from "@/api/system.ts";
+import { openUri } from "@/api/system.ts";
 
 interface Props {
   title: string;
-  url: string;    // 实际跳转链接 mailto:xxx
+  uri: string;
   label: string;
 }
 
 defineProps<Props>()
 
-const openMail = async (url: string) => {
-  const res = await openSystem(url);
+const handleOpenUri = async (uri: string) => {
+  const res = await openUri(uri);
 
   if (res.status === 'error') {
     ElMessage.warning(res.message);

@@ -19,8 +19,8 @@
         <section>
           <h3>源码托管</h3>
           <div class="repo-links">
-            <p>前端：<el-link type="primary" @click="handleOpen(frontendUrl)">{{ frontendUrl }}</el-link></p>
-            <p>后端：<el-link type="primary" @click="handleOpen(backendUrl)">{{ backendUrl }}</el-link></p>
+            <p>前端：<el-link type="primary" @click="handleOpenUri(frontendUrl)">{{ frontendUrl }}</el-link></p>
+            <p>后端：<el-link type="primary" @click="handleOpenUri(backendUrl)">{{ backendUrl }}</el-link></p>
           </div>
         </section>
 
@@ -36,7 +36,7 @@
         <div class="footer-info">
           <span class="author-tag">Maintained by inkmac</span>
           <span class="divider">|</span>
-          <el-link @click="handleOpen(mail)">提交 Bug反馈</el-link>
+          <el-link @click="handleOpenUri(mail)">提交 Bug反馈</el-link>
         </div>
       </div>
     </el-card>
@@ -45,15 +45,15 @@
 
 <script setup lang="ts">
 import { InfoFilled } from '@element-plus/icons-vue'
-import { openSystem } from "@/api/system.ts";
+import { openUri } from "@/api/system.ts";
 import { ElMessage } from "element-plus";
 
 const frontendUrl = 'https://github.com/inkmac/DownloaderV2-Frontend'
 const backendUrl = 'https://github.com/inkmac/DownloaderV2-Backend'
 const mail = 'mailto:wenyuan_zhao@outlook.com'
 
-const handleOpen = async (url: string) => {
-  const res = await openSystem(url);
+const handleOpenUri = async (uri: string) => {
+  const res = await openUri(uri);
 
   if (res.status === 'error') {
     ElMessage.warning(res.message);

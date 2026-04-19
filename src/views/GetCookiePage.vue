@@ -46,7 +46,7 @@
 
       <ContactAuthor
           title="Find bugs? Contact Author: "
-          url="mailto:wenyuan_zhao@outlook.com"
+          uri="mailto:wenyuan_zhao@outlook.com"
           label="Wenyuan Zhao"
       />
     </el-card>
