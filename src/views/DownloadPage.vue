@@ -37,7 +37,7 @@
                 <el-option
                     v-for="item in videoFormats"
                     :key="item.id"
-                    :label="`id: ${item.id} | ${item.res}P | ${item.ext} | ${item.fps}fps | ${item.filesize} | ${item.vbr}kbps`"
+                    :label="`id: ${item.id} | ${item.res}P | ${item.ext} | ${item.fps}fps | ${item.filesize} | ${item.vbr}kbps | ${item.vcodec.split('.')[0]}`"
                     :value="item.id"
                 />
               </el-select>
@@ -49,7 +49,7 @@
                 <el-option
                     v-for="item in audioFormats"
                     :key="item.id"
-                    :label="`id: ${item.id} | ${item.ext} | ${item.filesize} | ${item.abr}kbps`"
+                    :label="`id: ${item.id} | ${item.ext} | ${item.filesize} | ${item.abr}kbps | ${item.acodec.split('.')[0]}`"
                     :value="item.id"
                 />
               </el-select>
