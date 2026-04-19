@@ -7,6 +7,7 @@
   >
     <el-menu-item index="/download">Download</el-menu-item>
     <el-menu-item index="/get-cookie">Get Cookie</el-menu-item>
+    <el-menu-item index="/software-announcement">Software Announcement</el-menu-item>
   </el-menu>
 
   <router-view v-slot="{ Component, route }">

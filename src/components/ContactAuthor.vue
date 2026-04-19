@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import request from "@/api";
 import { ElMessage } from "element-plus";
+import { openSystem } from "@/api/system.ts";
 
 interface Props {
   title: string;
@@ -30,20 +30,11 @@ interface Props {
 
 defineProps<Props>()
 
-interface Props {}
-
-interface OpenMailResponse {
-  status: 'success' | 'error';
-  message: string;
-}
-
 const openMail = async (url: string) => {
-  const res: OpenMailResponse = await request.post('/open-mail', {
-    url: url,
-  })
+  const res = await openSystem(url);
 
   if (res.status === 'error') {
-    ElMessage.warning(res.message)
+    ElMessage.warning(res.message);
   }
 }
 </script>
