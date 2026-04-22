@@ -1,5 +1,8 @@
 <template>
   <div class="cookie-container">
+    <SettingsButton class="settings-button" @click="showSettingsDialog = true"/>
+    <SettingsDialog v-model="showSettingsDialog"></SettingsDialog>
+
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
@@ -58,6 +61,8 @@ import { ref, reactive } from 'vue'
 import request from '@/api'
 import TerminalConsole from "@/components/TerminalConsole.vue";
 import ContactAuthor from "@/components/ContactAuthor.vue";
+import SettingsButton from "@/components/SettingsButton.vue";
+import SettingsDialog from "@/views/SettingsDialog.vue";
 
 // 定义接口响应类型
 interface FetchCookieRes {
@@ -65,6 +70,7 @@ interface FetchCookieRes {
   message: string
 }
 
+const showSettingsDialog = ref(false)
 const loading = ref(false)
 const terminalLog = ref(['[IDLE] 等待操作...\n'])
 
@@ -98,6 +104,13 @@ const handleFetchCookie = async () => {
   background-color: #f0f2f5;
   min-height: 100vh;
   font-family: "JetBrains Mono", "PingFang SC", sans-serif;
+}
+
+.settings-button {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  z-index: 999;
 }
 
 .box-card {

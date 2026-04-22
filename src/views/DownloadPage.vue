@@ -1,5 +1,8 @@
 <template>
   <div class="download-container">
+    <SettingsButton class="settings-button" @click="showSettingsDialog = true"/>
+    <SettingsDialog v-model="showSettingsDialog"></SettingsDialog>
+
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
@@ -14,7 +17,7 @@
               <span>视频 URL</span>
               <el-tooltip content="点击查看当前支持的网站" placement="top">
                 <el-icon
-                    @click="dialogVisible = true"
+                    @click="showSupportedWebsitesDialog = true"
                     class="info-icon"
                 >
                   <QuestionFilled />
@@ -88,7 +91,7 @@
   </div>
 
   <el-dialog
-      v-model="dialogVisible"
+      v-model="showSupportedWebsitesDialog"
       title="支持的网站列表"
       width="30%"
   >
@@ -105,7 +108,7 @@
     </div>
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible = false">了解了</el-button>
+        <el-button type="primary" @click="showSupportedWebsitesDialog = false">了解了</el-button>
       </span>
     </template>
   </el-dialog>
@@ -119,6 +122,8 @@ import request from "@/api/index.js";
 import { sleep } from "@/utils/time.ts";
 import TerminalConsole from "@/components/TerminalConsole.vue";
 import ContactAuthor from "@/components/ContactAuthor.vue";
+import SettingsButton from "@/components/SettingsButton.vue";
+import SettingsDialog from "@/views/SettingsDialog.vue";
 
 // 数据格式（数据通过后端获取）
 interface VideoFormatDetail {
@@ -165,8 +170,9 @@ interface GetSupportedWebsitesResponse {
 }
 
 // 数据
+const showSettingsDialog = ref(false)
 const supportedWebsites = ref<string[]>([])
-const dialogVisible = ref(false)
+const showSupportedWebsitesDialog = ref(false)
 const videoUrl = ref('')
 const selectedVideo = ref('')
 const selectedAudio = ref('')
@@ -274,6 +280,13 @@ const handleDownload = async () => {
   background-color: #f0f2f5;
   min-height: 100vh;
   font-family: "JetBrains Mono", "PingFang SC", sans-serif;
+}
+
+.settings-button {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  z-index: 999;
 }
 
 .box-card {
