@@ -4,39 +4,58 @@
       <template #header>
         <div class="card-header">
           <el-icon><InfoFilled /></el-icon>
-          <span>关于软件与开源声明</span>
+          <span>{{ $t('info.title') }}</span>
         </div>
       </template>
 
       <div class="content">
         <section>
-          <h3>项目初衷</h3>
+          <h3>{{ $t('info.intent.title') }}</h3>
           <p>
-            本软件（DownloaderV2）是一个基于 <strong>yt-dlp</strong> 核心开发的 GUI 封装工具，旨在为学术研究及个人学习提供便利。
+            <i18n-t keypath="info.intent.content" tag="span">
+              <template #bold>
+                <strong>yt-dlp</strong>
+              </template>
+            </i18n-t>
           </p>
         </section>
 
         <section>
-          <h3>源码托管</h3>
+          <h3>{{ $t('info.repo.title') }}</h3>
           <div class="repo-links">
-            <p>前端：<el-link type="primary" @click="handleOpenUri(frontendUrl)">{{ frontendUrl }}</el-link></p>
-            <p>后端：<el-link type="primary" @click="handleOpenUri(backendUrl)">{{ backendUrl }}</el-link></p>
+            <p>
+              {{ $t('info.repo.frontend') }}
+              <el-link type="primary" @click="handleOpenUri(frontendUrl)">{{ frontendUrl }}</el-link>
+            </p>
+            <p>
+              {{ $t('info.repo.backend') }}
+              <el-link type="primary" @click="handleOpenUri(backendUrl)">{{ backendUrl }}</el-link>
+            </p>
           </div>
         </section>
 
         <section class="disclaimer">
-          <h3>免责声明</h3>
+          <h3>{{ $t('info.disclaimer.title') }}</h3>
           <ul>
-            <li><strong>严禁非法分发：</strong> 作者不鼓励、不支持任何形式的非法分发本软件的行为。</li>
-            <li><strong>版权合规：</strong> 本工具仅供个人学习及技术交流使用。请勿利用本软件下载、存储或分发受版权保护的内容。用户需自行承担因不当使用导致的法律责任。</li>
-            <li><strong>技术归属：</strong> 本软件仅作为 UI 交互层，核心下载功能由开源项目 yt-dlp 提供。</li>
+            <li>
+              <strong>{{ $t('info.disclaimer.illegal.label') }}</strong>
+              {{ $t('info.disclaimer.illegal.content') }}
+            </li>
+            <li>
+              <strong>{{ $t('info.disclaimer.copyright.label') }}</strong>
+              {{ $t('info.disclaimer.copyright.content') }}
+            </li>
+            <li>
+              <strong>{{ $t('info.disclaimer.tech.label') }}</strong>
+              {{ $t('info.disclaimer.tech.content') }}
+            </li>
           </ul>
         </section>
 
         <div class="footer-info">
-          <span class="author-tag">Maintained by inkmac</span>
+          <span class="author-tag">{{ $t('info.footer.maintained') }}</span>
           <span class="divider">|</span>
-          <el-link @click="handleOpenUri(issues)">提交Bug反馈</el-link>
+          <el-link @click="handleOpenUri(issues)">{{ $t('info.footer.report') }}</el-link>
         </div>
       </div>
     </el-card>

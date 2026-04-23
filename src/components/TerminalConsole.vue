@@ -3,7 +3,7 @@
     <div class="terminal-header">{{ title }}</div>
     <pre
         ref="terminalRef"
-        v-text="logs.join('')"
+        v-text="logs.length > 0 ? logs.join('') : $t('terminal.default')"
         class="terminal-body"
     ></pre>
   </div>
@@ -14,13 +14,11 @@ import { ref, watch, nextTick } from 'vue';
 
 interface Props {
   logs: string[];
-  title?: string;
+  title: string;
   autoScroll?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  logs: () => [],
-  title: '控制台输出',
   autoScroll: true
 });
 

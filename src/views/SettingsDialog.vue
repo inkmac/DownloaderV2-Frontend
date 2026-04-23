@@ -1,22 +1,22 @@
 <template>
   <el-dialog
       v-model="visible"
-      title="设置"
+      :title="$t('settings.title')"
       width="700"
   >
     <div class="setting-content">
       <el-form label-position="top">
-        <el-form-item label="视频保存路径">
-          <el-input v-model="videoSavedPath" readonly placeholder="请选择保存路径">
+        <el-form-item :label="$t('settings.videoPath')">
+          <el-input v-model="videoSavedPath" readonly :placeholder="$t('settings.videoPathPlaceholder')">
             <template #append>
               <el-button-group>
-                <el-tooltip content="选择 Video 保存文件夹" :show-after="200">
-                  <el-button @click="handleChooseVideoPath" :disabled="loading" title="选择路径">
+                <el-tooltip :content="$t('settings.tooltip.selectVideo')" :show-after="200">
+                  <el-button @click="handleChooseVideoPath" :disabled="loading">
                     <el-icon><FolderOpened /></el-icon>
                   </el-button>
                 </el-tooltip>
-                <el-tooltip content="打开 Video 保存文件夹" :show-after="200">
-                  <el-button @click="openPath(videoSavedPath)" :disabled="loading" title="打开文件夹">
+                <el-tooltip :content="$t('settings.tooltip.openVideo')" :show-after="200">
+                  <el-button @click="openPath(videoSavedPath)" :disabled="loading">
                     <el-icon><Position /></el-icon>
                   </el-button>
                 </el-tooltip>
@@ -25,17 +25,17 @@
           </el-input>
         </el-form-item>
 
-        <el-form-item label="Cookie 存储路径">
-          <el-input v-model="cookieSavedPath" readonly placeholder="请选择 Cookie 路径">
+        <el-form-item :label="$t('settings.cookiePath')">
+          <el-input v-model="cookieSavedPath" readonly :placeholder="$t('settings.cookiePathPlaceholder')">
             <template #append>
               <el-button-group>
-                <el-tooltip content="选择 Cookie 保存文件夹" :show-after="200">
-                  <el-button @click="handleChooseCookiePath()" :disabled="loading" title="选择路径">
+                <el-tooltip :content="$t('settings.tooltip.selectCookie')" :show-after="200">
+                  <el-button @click="handleChooseCookiePath()" :disabled="loading">
                     <el-icon><FolderOpened /></el-icon>
                   </el-button>
                 </el-tooltip>
-                <el-tooltip content="打开 Cookie 保存文件夹" :show-after="200">
-                  <el-button @click="openPath(cookieSavedPath)" :disabled="loading" title="打开文件夹">
+                <el-tooltip :content="$t('settings.tooltip.openCookie')" :show-after="200">
+                  <el-button @click="openPath(cookieSavedPath)" :disabled="loading">
                     <el-icon><Position /></el-icon>
                   </el-button>
                 </el-tooltip>
@@ -49,7 +49,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="handleSave">
-          关闭
+          {{ $t('settings.close') }}
         </el-button>
       </div>
     </template>
@@ -62,8 +62,11 @@ import { FolderOpened, Position } from '@element-plus/icons-vue';
 import { choosePath, openPath } from "@/api/system.ts";
 import { ElMessage } from "element-plus";
 import { getGeneralConfig, updateGeneralConfig } from "@/api/config.ts";
+import { useI18n } from 'vue-i18n';
 
 const visible = defineModel<boolean>({ default: false });
+
+const { t } = useI18n();
 
 const loading = ref(false);
 const videoSavedPath = ref("");
@@ -96,7 +99,7 @@ const handleChooseVideoPath = async () => {
   });
 
   if (updateGeneralConfigRes.status === "success") {
-    ElMessage.success("Successfully changed video save path");
+    ElMessage.success(t('settings.success'));
   } else {
     ElMessage.warning(updateGeneralConfigRes.message);
   }
@@ -121,7 +124,7 @@ const handleChooseCookiePath = async () => {
   });
 
   if (updateGeneralConfigRes.status === "success") {
-    ElMessage.success("Successfully changed video save path");
+    ElMessage.success(t('settings.success'));
   } else {
     ElMessage.warning(updateGeneralConfigRes.message);
   }

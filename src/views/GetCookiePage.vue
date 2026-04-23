@@ -6,15 +6,15 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span class="header-title">Cookie 提取</span>
+          <span class="header-title">{{ $t('cookie.title') }}</span>
         </div>
       </template>
 
       <el-form label-position="top">
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="目标浏览器">
-              <el-select v-model="form.browser" placeholder="选择浏览器" class="full-width">
+            <el-form-item :label="$t('cookie.browser')">
+              <el-select v-model="form.browser" :placeholder="$t('cookie.browserPlaceholder')" class="full-width">
                 <el-option label="Chrome" value="chrome" />
                 <el-option label="Edge" value="edge" />
                 <el-option label="Firefox" value="firefox" />
@@ -24,10 +24,10 @@
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="目标网站">
-              <el-select v-model="form.website" placeholder="选择预设网站" class="full-width">
+            <el-form-item :label="$t('cookie.website')">
+              <el-select v-model="form.website" :placeholder="$t('cookie.websitePlaceholder')" class="full-width">
                 <el-option label="Bilibili" value="bilibili" />
-                <el-option label="Youtube" value="youtube" />
+                <el-option label="YouTube" value="youtube" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -40,17 +40,17 @@
               :disabled="loading"
               @click="handleFetchCookie"
           >
-            开始提取 Cookie
+            {{ $t('cookie.start') }}
           </el-button>
         </div>
       </el-form>
 
-      <TerminalConsole :logs="terminalLog"/>
+      <TerminalConsole :logs="terminalLog" :title="$t('cookie.terminal')"/>
 
       <ContactAuthor
           title=""
           uri="https://github.com/inkmac/DownloaderV2-Frontend/issues"
-          label="Report issues on GitHub"
+          :label="$t('common.reportIssue')"
       />
     </el-card>
   </div>
@@ -58,11 +58,14 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import request from '@/api'
 import TerminalConsole from "@/components/TerminalConsole.vue";
 import ContactAuthor from "@/components/ContactAuthor.vue";
 import SettingsButton from "@/components/SettingsButton.vue";
 import SettingsDialog from "@/views/SettingsDialog.vue";
+
+const { t } = useI18n()
 
 // 定义接口响应类型
 interface FetchCookieRes {
@@ -72,7 +75,7 @@ interface FetchCookieRes {
 
 const showSettingsDialog = ref(false)
 const loading = ref(false)
-const terminalLog = ref(['[IDLE] 等待操作...\n'])
+const terminalLog = ref<string[]>([])
 
 const form = reactive({
   browser: 'chrome',
@@ -81,7 +84,13 @@ const form = reactive({
 
 const handleFetchCookie = async () => {
   loading.value = true
-  terminalLog.value = [`[INFO] 正在从 ${form.browser} 提取 ${form.website} 的 Cookie...\n`]
+
+  const initLog = t('cookie.log.fetching', {
+    browser: form.browser,
+    website: form.website
+  })
+
+  terminalLog.value = [initLog]
 
   const res: FetchCookieRes = await request.post('/fetch-cookie', {
     website: form.website,

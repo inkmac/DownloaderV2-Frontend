@@ -19,7 +19,7 @@
 
     <div class="flex-filler"></div>
 
-    <el-sub-menu class="menu-item-right">
+    <el-sub-menu>
       <template #title>Language Choose</template>
       <el-menu-item @click="changeLang('zh')">简体中文</el-menu-item>
       <el-menu-item @click="changeLang('en')">English</el-menu-item>

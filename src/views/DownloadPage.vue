@@ -6,7 +6,7 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span class="header-title">视频下载器</span>
+          <span class="header-title">{{ $t('download.title') }}</span>
         </div>
       </template>
 
@@ -14,8 +14,8 @@
         <el-form-item>
           <template #label>
             <div style="display: flex; align-items: center;">
-              <span>视频 URL</span>
-              <el-tooltip content="点击查看当前支持的网站" placement="top">
+              <span>{{ $t('download.videoUrl') }}</span>
+              <el-tooltip :content="$t('download.supportedWebsites.tooltip')" placement="top">
                 <el-icon
                     @click="showSupportedWebsitesDialog = true"
                     class="info-icon"
@@ -28,15 +28,15 @@
 
           <el-input
               v-model="videoUrl"
-              placeholder="请输入视频链接 (例如: https://www.example.com/video/...)"
+              :placeholder="$t('download.videoUrlInput')"
               clearable
           />
         </el-form-item>
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="视频流 (Video)">
-              <el-select v-model="selectedVideo" placeholder="选择视频分辨率" class="full-width">
+            <el-form-item :label="$t('download.videoStream')">
+              <el-select v-model="selectedVideo" :placeholder="$t('download.videoFormatChoice')" class="full-width">
                 <el-option
                     v-for="item in videoFormats"
                     :key="item.id"
@@ -47,8 +47,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="音频流 (Audio)">
-              <el-select v-model="selectedAudio" placeholder="选择音质" class="full-width">
+            <el-form-item :label="$t('download.audioStream')">
+              <el-select v-model="selectedAudio" :placeholder="$t('download.audioFormatChoice')" class="full-width">
                 <el-option
                     v-for="item in audioFormats"
                     :key="item.id"
@@ -67,7 +67,7 @@
               :disabled="!videoUrl || loading"
               @click="handleFetchFormats"
           >
-            解析可用格式
+            {{ $t('download.extractFormat') }}
           </el-button>
           <el-button
               type="success"
@@ -75,24 +75,24 @@
               :disabled="!videoUrl || loading"
               @click="handleDownload"
           >
-            立即下载
+            {{ $t('download.download') }}
           </el-button>
         </div>
       </el-form>
 
-      <TerminalConsole :logs="terminalLog"/>
+      <TerminalConsole :logs="terminalLog" :title="$t('download.terminal')"/>
 
       <ContactAuthor
           title=""
           uri="https://github.com/inkmac/DownloaderV2-Frontend/issues"
-          label="Report issues on GitHub"
+          :label="$t('common.reportIssue')"
       />
     </el-card>
   </div>
 
   <el-dialog
       v-model="showSupportedWebsitesDialog"
-      title="支持的网站列表"
+      :title="$t('download.supportedWebsites.title')"
       width="30%"
   >
     <div class="sites-container">
@@ -176,7 +176,7 @@ const showSupportedWebsitesDialog = ref(false)
 const videoUrl = ref('')
 const selectedVideo = ref('')
 const selectedAudio = ref('')
-const terminalLog = ref(['等待任务开始...\n'])
+const terminalLog = ref<string[]>([])
 const loading = ref(false)
 const videoFormats = ref<VideoFormatDetail[]>([])
 const audioFormats = ref<AudioFormatDetail[]>([])
