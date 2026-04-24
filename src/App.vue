@@ -27,11 +27,13 @@
     </el-sub-menu>
   </el-menu>
 
-  <router-view v-slot="{ Component, route }">
-    <KeepAlive>
-      <component :is="Component" :key="route.path" />
-    </KeepAlive>
-  </router-view>
+  <el-scrollbar class="scroll-view">
+    <router-view v-slot="{ Component, route }">
+      <KeepAlive>
+        <component :is="Component" :key="route.path" />
+      </KeepAlive>
+    </router-view>
+  </el-scrollbar>
 </template>
 
 <script lang="ts" setup>
@@ -53,8 +55,13 @@ const changeLang = (lang: LanguageType) => {
 }
 </script>
 
-<style>
+<style scoped>
 .flex-filler {
   flex-grow: 1;
+}
+
+.scroll-view {
+  flex: 1;
+  background-color: #f5f7fa;
 }
 </style>

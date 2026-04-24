@@ -4,9 +4,10 @@ import ElementPlus from 'element-plus'
 
 import App from './App.vue'
 import router from './router'
+import i18n from "@/i18n";
 
 import 'element-plus/dist/index.css'
-import i18n from "@/i18n";
+import '@/styles/main.css'
 
 const app = createApp(App)
 
