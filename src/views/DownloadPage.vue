@@ -108,7 +108,7 @@
     </div>
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="showSupportedWebsitesDialog = false">了解了</el-button>
+        <el-button type="primary" @click="showSupportedWebsitesDialog = false">{{ $t('common.gotIt') }}</el-button>
       </span>
     </template>
   </el-dialog>

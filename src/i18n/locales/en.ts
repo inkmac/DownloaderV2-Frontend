@@ -83,6 +83,7 @@ const en: MessageSchema = {
         }
     },
     common: {
+        gotIt: 'Got it',
         reportIssue: 'Report issues on GitHub',
     },
     terminal: {

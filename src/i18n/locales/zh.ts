@@ -79,6 +79,7 @@ const zh = {
         }
     },
     common: {
+        gotIt: '了解了',
         reportIssue: '在 GitHub 上反馈问题',
     },
     terminal: {
